@@ -75,8 +75,10 @@ module Codespan
 
             if start_line_index == end_line_index
               # Single line label
-              label_start = label.range.begin - start_line_range.begin
-              label_end = Math.max(label.range.end - start_line_range.begin, label_start + 1)
+              source = files.source(label.file_id)
+              label_start = Files.column_index(source, start_line_range, label.range.begin)
+              label_end = Files.column_index(source, start_line_range, label.range.end)
+              label_end = Math.max(label_end, label_start + 1)
 
               line = labeled_file.get_or_insert_line(start_line_index, start_line_range, start_line_number)
 
@@ -135,7 +137,7 @@ module Codespan
           # Render snippets
           labeled_files.each do |labeled_file|
             source = files.source(labeled_file.file_id)
-            lines = labeled_file.lines.select { |_, line| line.must_render }.to_a.sort_by(&.first)
+            lines = labeled_file.lines.select { |_, line| line.must_render? }.to_a.sort_by(&.first)
 
             unless lines.empty?
               renderer.render_snippet_start(
@@ -235,7 +237,7 @@ module Codespan
         property range : Range(Int32, Int32)
         property single_labels : Array(Tuple(Codespan::Reporting::LabelStyle, Range(Int32, Int32), String)) = [] of Tuple(Codespan::Reporting::LabelStyle, Range(Int32, Int32), String)
         property multi_labels : Array(Tuple(Int32, Codespan::Reporting::LabelStyle, MultiLabel)) = [] of Tuple(Int32, Codespan::Reporting::LabelStyle, MultiLabel)
-        property must_render : Bool = false
+        property? must_render : Bool = false
 
         def initialize(@number, @range)
         end
@@ -268,6 +270,12 @@ module Codespan
             @diagnostic.notes.each do |note|
               renderer.render_snippet_note(0, note)
             end
+          end
+
+          # Add trailing newline for medium style with labels (position indicator)
+          # Short style doesn't need it, even with labels
+          if @show_notes && !@diagnostic.labels.empty?
+            renderer.render_empty
           end
         end
       end

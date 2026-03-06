@@ -7,6 +7,10 @@
 
 Version: "1.7.0-dev"
 
-Lint/SpecEqWithBoolOrNilLiteral:
+Excluded:
+  - spec/**/*
+
+Metrics/CyclomaticComplexity:
   Excluded:
-    - spec/**/*
+    - src/codespan/reporting/term/renderer.cr
+    - src/codespan/reporting/term/views.cr

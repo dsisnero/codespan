@@ -14,7 +14,7 @@ GOLDEN_DIR = "spec/testdata/rust_snapshots"
 
 def run_rust_tests
   puts "Running Rust tests to generate golden files..."
-  
+
   # Change to the Rust directory
   Dir.cd("vendor/codespan") do
     # Run cargo test to generate snapshots
@@ -28,21 +28,21 @@ end
 def copy_snapshots_to_golden
   # Create golden directory
   FileUtils.mkdir_p(GOLDEN_DIR)
-  
+
   # Copy all .snap files
   snap_files = Dir.glob("#{RUST_SNAPSHOT_DIR}/*.snap")
   snap_files.each do |snap_file|
     basename = File.basename(snap_file, ".snap")
     golden_file = File.join(GOLDEN_DIR, "#{basename}.golden")
-    
+
     # Read the snapshot file and extract just the body (after the YAML frontmatter)
     content = File.read(snap_file)
-    
+
     # Snapshot files have YAML frontmatter separated by "---"
     # We want just the body after the second "---"
     delimiter = "---\n"
     first = content.index(delimiter)
-    
+
     if first
       second = content.index(delimiter, first + delimiter.bytesize)
       if second
@@ -56,17 +56,17 @@ def copy_snapshots_to_golden
     else
       File.write(golden_file, content)
     end
-    
+
     puts "Copied #{basename}.snap -> #{basename}.golden"
   end
-  
+
   puts "Copied #{snap_files.size} snapshot files"
   snap_files
 end
 
 def create_golden_test(snap_files)
   puts "\nCreating golden test file..."
-  
+
   # Start building the test file content
   test_content = <<-CRYSTAL
 require "../../../spec_helper"
@@ -79,20 +79,20 @@ Golden.dir = "spec/testdata/rust_snapshots"
 private def golden_body(path : String) : String
   content = File.read(path)
   delimiter = "---\\n"
-  
+
   first = content.index(delimiter)
   return content unless first
-  
+
   second = content.index(delimiter, first + delimiter.bytesize)
   return content unless second
-  
+
   body = content[(second + delimiter.bytesize)..]
   body.ends_with?('\\n') ? body[0...-1] : body
 end
 
 describe "Rust snapshot parity (golden)" do
 CRYSTAL
-  
+
   # Add a test for each snapshot file
   snap_files.each do |snap_path|
     basename = File.basename(snap_path, ".snap")
@@ -101,7 +101,7 @@ CRYSTAL
   it "matches #{basename}" do
     # Get the expected output from Rust snapshot
     expected = golden_body("#{snap_path}")
-    
+
     # TODO: Generate the actual output from Crystal implementation
     # For now, we'll just read the golden file we created
     golden_path = "spec/testdata/rust_snapshots/#{basename}.golden"
@@ -114,10 +114,10 @@ CRYSTAL
   end
 CRYSTAL
   end
-  
+
   # Close the describe block
   test_content += "\nend\n"
-  
+
   File.write("spec/codespan/reporting/term/golden_parity_spec.cr", test_content)
   puts "Created spec/codespan/reporting/term/golden_parity_spec.cr"
 end

@@ -57,6 +57,7 @@ module Codespan
 
         def render_snippet_start(outer_padding : Int32, locus : Locus) : Nil
           outer_padding.times { @writer << ' ' }
+          @writer << ' '
           @writer << @config.chars.snippet_start
           @writer << " "
           @writer << locus.name
@@ -74,6 +75,7 @@ module Codespan
           multi_labels : Array(Tuple(Int32, Codespan::Reporting::LabelStyle, MultiLabel)),
         ) : Nil
           outer_padding.times { @writer << ' ' }
+          @writer << ' '
           @writer << @config.chars.source_border_left
 
           # Create a map of label column to label
@@ -105,6 +107,7 @@ module Codespan
           multi_labels : Array(Tuple(Int32, Codespan::Reporting::LabelStyle, MultiLabel)),
         ) : Nil
           outer_padding.times { @writer << ' ' }
+          @writer << ' '
           @writer << @config.chars.source_border_left_break
 
           # Create a map of label column to label
@@ -250,6 +253,7 @@ module Codespan
 
           # Write caret line
           outer_padding.times { @writer << ' ' }
+          @writer << ' '
           @writer << @config.chars.source_border_left
 
           # Multi-label gutter
@@ -289,10 +293,12 @@ module Codespan
 
           return if hanging.empty?
 
+          # Pointer positions: pointers go from each hanging label position
           pointer_positions = hanging.map(&.[1].begin).sort!
 
           # Write pointer line
           outer_padding.times { @writer << ' ' }
+          @writer << ' '
           @writer << @config.chars.source_border_left
 
           # Reuse label map
@@ -318,6 +324,7 @@ module Codespan
           # Write hanging messages
           hanging.sort_by(&.[1].begin).reverse_each do |(_, range, message)|
             outer_padding.times { @writer << ' ' }
+            @writer << ' '
             @writer << @config.chars.source_border_left
 
             # Reuse label map
@@ -335,7 +342,19 @@ module Codespan
             end
 
             @writer << " "
-            range.begin.times { @writer << ' ' }
+
+            # Build pointer line up to range.begin
+            # We need range.begin total characters
+            line_chars = Array(Char).new(range.begin, ' ')
+
+            # Mark pointer positions
+            pointer_positions.each do |pos|
+              if pos < range.begin
+                line_chars[pos] = @config.chars.pointer_left
+              end
+            end
+
+            @writer << line_chars.join
             @writer << message
             @writer << '\n'
           end
@@ -343,7 +362,9 @@ module Codespan
 
         def render_snippet_note(outer_padding : Int32, note : String) : Nil
           outer_padding.times { @writer << ' ' }
-          @writer << " = " << note << '\n'
+          @writer << ' '
+          @writer << @config.chars.note_bullet
+          @writer << " " << note << '\n'
         end
 
         def render_empty : Nil
