@@ -272,11 +272,8 @@ module Codespan
             end
           end
 
-          # Add trailing newline for medium style with labels (position indicator)
-          # Short style doesn't need it, even with labels
-          if @show_notes && !@diagnostic.labels.empty?
-            renderer.render_empty
-          end
+          # No trailing newline for short/medium diagnostics
+          # Rust doesn't add one
         end
       end
     end
