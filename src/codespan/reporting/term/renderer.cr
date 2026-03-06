@@ -178,15 +178,11 @@ module Codespan
               _, label = entry
               case label.type
               when MultiLabelType::Top
-                if label.position <= source.size - source.lstrip.size
-                  @writer << @config.chars.multi_top_left
-                else
-                  @writer << ' '
-                end
+                @writer << @config.chars.multi_top_left
               when MultiLabelType::Left
                 @writer << @config.chars.multi_left
               when MultiLabelType::Bottom
-                @writer << @config.chars.multi_left
+                @writer << @config.chars.multi_bottom_left
               end
             else
               @writer << ' '
@@ -206,6 +202,11 @@ module Codespan
           # Render single labels if any
           unless single_labels.empty?
             render_single_labels(outer_padding, source, severity, single_labels, num_multi_labels, multi_labels)
+          end
+
+          # Render multiline labels if any
+          unless multi_labels.empty?
+            render_multi_labels(outer_padding, source, severity, multi_labels)
           end
         end
 
@@ -365,6 +366,96 @@ module Codespan
           @writer << ' '
           @writer << @config.chars.note_bullet
           @writer << " " << note << '\n'
+        end
+
+        private def render_multi_labels(
+          outer_padding : Int32,
+          source : String,
+          severity : Codespan::Reporting::Severity,
+          multi_labels : Array(Tuple(Int32, Codespan::Reporting::LabelStyle, MultiLabel)),
+        ) : Nil
+          # Group by label index to find top and bottom labels
+          labels_by_index = Hash(Int32, Array(Tuple(Codespan::Reporting::LabelStyle, MultiLabel))).new
+          multi_labels.each do |label_index, label_style, label|
+            labels_by_index[label_index] ||= [] of Tuple(Codespan::Reporting::LabelStyle, MultiLabel)
+            labels_by_index[label_index] << {label_style, label}
+          end
+
+          labels_by_index.each do |_label_index, labels|
+            # Find top and bottom labels
+            top_label = labels.find { |_, label| label.type == MultiLabelType::Top }
+            bottom_label = labels.find { |_, label| label.type == MultiLabelType::Bottom }
+
+            if top_label
+              label_style, label = top_label
+              render_multi_top_caret(outer_padding, source, severity, label_style, label.position)
+            end
+
+            if bottom_label
+              label_style, label = bottom_label
+              render_multi_bottom_caret(outer_padding, source, severity, label_style, label.position, label.message)
+            end
+          end
+        end
+
+        private def render_multi_top_caret(
+          outer_padding : Int32,
+          source : String,
+          severity : Codespan::Reporting::Severity,
+          label_style : Codespan::Reporting::LabelStyle,
+          position : Int32,
+        ) : Nil
+          # Write outer gutter
+          outer_padding.times { @writer << ' ' }
+          @writer << ' '
+          @writer << @config.chars.source_border_left
+
+          # Write horizontal line up to position (inclusive)
+          column = 0
+          source.each_char do |char|
+            break if column > position
+            char_width = char == '\t' ? @config.tab_width : 1
+            char_width.times { @writer << @config.chars.multi_top }
+            column += 1
+          end
+
+          # Write caret
+          caret = label_style == Codespan::Reporting::LabelStyle::Primary ? @config.chars.multi_primary_caret_start : @config.chars.multi_secondary_caret_start
+          @writer << caret
+          @writer << '\n'
+        end
+
+        private def render_multi_bottom_caret(
+          outer_padding : Int32,
+          source : String,
+          severity : Codespan::Reporting::Severity,
+          label_style : Codespan::Reporting::LabelStyle,
+          position : Int32,
+          message : String,
+        ) : Nil
+          # Write outer gutter
+          outer_padding.times { @writer << ' ' }
+          @writer << ' '
+          @writer << @config.chars.source_border_left
+
+          # Write horizontal line up to position (inclusive)
+          column = 0
+          source.each_char do |char|
+            break if column > position
+            char_width = char == '\t' ? @config.tab_width : 1
+            char_width.times { @writer << @config.chars.multi_bottom }
+            column += 1
+          end
+
+          # Write caret
+          caret = label_style == Codespan::Reporting::LabelStyle::Primary ? @config.chars.multi_primary_caret_start : @config.chars.multi_secondary_caret_start
+          @writer << caret
+
+          # Write message if present
+          unless message.empty?
+            @writer << " " << message
+          end
+          @writer << '\n'
         end
 
         def render_empty : Nil

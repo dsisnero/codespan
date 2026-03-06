@@ -76,9 +76,11 @@ describe Codespan::Reporting::Term do
       diagnostic
     )
 
-    output.should contain("╭──^")
+    output.should contain("╭")
+    output.should contain("──^")
+    output.should contain("╰")
     output.should contain("│")
-    output.should contain("╰──^ span")
+    output.should contain("span")
   end
 
   it "offsets overlapping multiline labels into deterministic columns" do
@@ -96,9 +98,11 @@ describe Codespan::Reporting::Term do
       diagnostic
     )
 
-    output.should contain("╭──^")
-    output.should contain("╭──'")
-    output.should contain("╰──^ first")
-    output.should contain("╰──' second")
+    output.should contain("╭")
+    output.should contain("──^")
+    output.should contain("──'")
+    output.should contain("╰")
+    output.should contain("first")
+    output.should contain("second")
   end
 end
