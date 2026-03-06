@@ -1,0 +1,6 @@
+FizzBuzz.fun:8:12: {fg:Red bold bright}error[E0308]{bold bright}: `case` clauses have incompatible types{/}
+ {fg:Cyan}={/} expected type `String`
+      found type `Nat`
+FizzBuzz.fun:16:16: {fg:Red bold bright}error[E0308]{bold bright}: `case` clauses have incompatible types{/}
+ {fg:Cyan}={/} expected type `String`
+      found type `Nat`

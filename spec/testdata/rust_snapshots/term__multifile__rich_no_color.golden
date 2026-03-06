@@ -1,0 +1,30 @@
+error: unknown builtin: `NATRAL`
+  ┌─ Data/Nat.fun:7:13
+  │
+7 │ {-# BUILTIN NATRAL Nat #-}
+  │             ^^^^^^ unknown builtin
+  │
+  = there is a builtin with a similar name: `NATURAL`
+
+warning: unused parameter pattern: `n₂`
+   ┌─ Data/Nat.fun:17:16
+   │
+17 │ zero    - succ n₂ = zero
+   │                ^^ unused parameter
+   │
+   = consider using a wildcard pattern: `_`
+
+error[E0001]: unexpected type in application of `_+_`
+   ┌─ Test.fun:4:11
+   │
+ 4 │ _ = 123 + "hello"
+   │           ^^^^^^^ expected `Nat`, found `String`
+   │
+   ┌─ Data/Nat.fun:11:1
+   │
+11 │ _+_ : Nat → Nat → Nat
+   │ --------------------- based on the definition of `_+_`
+   │
+   = expected type `Nat`
+        found type `String`
+

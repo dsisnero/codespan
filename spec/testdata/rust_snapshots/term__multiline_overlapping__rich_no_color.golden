@@ -1,0 +1,20 @@
+error[E0308]: match arms have incompatible types
+  ┌─ codespan/src/file.rs:4:34
+  │    
+1 │   ╭         match line_index.compare(self.last_line_index()) {
+2 │   │             Ordering::Less => Ok(self.line_starts()[line_index.to_usize()]),
+  │   │                               --------------------------------------------- this is found to be of type `Result<ByteIndex, LineIndexOutOfBoundsError>`
+3 │   │             Ordering::Equal => Ok(self.source_span().end()),
+  │   │                                ---------------------------- this is found to be of type `Result<ByteIndex, LineIndexOutOfBoundsError>`
+4 │   │             Ordering::Greater => LineIndexOutOfBoundsError {
+  │ ╭─│──────────────────────────────────^
+5 │ │ │                 given: line_index,
+6 │ │ │                 max: self.last_line_index(),
+7 │ │ │             },
+  │ ╰─│─────────────^ expected enum `Result`, found struct `LineIndexOutOfBoundsError`
+8 │   │         }
+  │   ╰─────────' `match` arms have incompatible types
+  │    
+  = expected type `Result<ByteIndex, LineIndexOutOfBoundsError>`
+       found type `LineIndexOutOfBoundsError`
+

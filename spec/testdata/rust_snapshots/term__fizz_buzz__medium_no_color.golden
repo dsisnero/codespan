@@ -1,0 +1,6 @@
+FizzBuzz.fun:8:12: error[E0308]: `case` clauses have incompatible types
+ = expected type `String`
+      found type `Nat`
+FizzBuzz.fun:16:16: error[E0308]: `case` clauses have incompatible types
+ = expected type `String`
+      found type `Nat`

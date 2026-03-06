@@ -1,0 +1,4 @@
+moon_jump.rs:1:1: error[E01]: cow may not jump during new moon.
+note: invalid unicode range
+note: invalid unicode range
+note: invalid unicode range

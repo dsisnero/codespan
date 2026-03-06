@@ -1,0 +1,2 @@
+same_range:1:5: {fg:Red bold bright}error{bold bright}: Unexpected token{/}
+

@@ -1,0 +1,1 @@
+codespan/src/file.rs:4:34: {fg:Red bold bright}error[E0308]{bold bright}: match arms have incompatible types{/}

@@ -1,0 +1,37 @@
+error[E0308]: `case` clauses have incompatible types
+  ┌─ FizzBuzz.fun:8:12
+  │  
+3 │   fizz₁ : Nat → String
+  │                 ------ expected type `String` found here
+4 │   fizz₁ num = case (mod num 5) (mod num 3) of
+  │ ╭─────────────'
+5 │ │     0 0 => "FizzBuzz"
+6 │ │     0 _ => "Fizz"
+7 │ │     _ 0 => "Buzz"
+8 │ │     _ _ => num
+  │ │            ^^^ expected `String`, found `Nat`
+  │ ╰──────────────' `case` clauses have incompatible types
+  │  
+  = expected type `String`
+       found type `Nat`
+
+error[E0308]: `case` clauses have incompatible types
+   ┌─ FizzBuzz.fun:16:16
+   │  
+10 │   fizz₂ : Nat → String
+   │                 ------ expected type `String` found here
+11 │   fizz₂ num =
+12 │ ╭     case (mod num 5) (mod num 3) of
+13 │ │         0 0 => "FizzBuzz"
+   │ │                ---------- this is found to be of type `String`
+14 │ │         0 _ => "Fizz"
+   │ │                ------ this is found to be of type `String`
+15 │ │         _ 0 => "Buzz"
+   │ │                ------ this is found to be of type `String`
+16 │ │         _ _ => num
+   │ │                ^^^ expected `String`, found `Nat`
+   │ ╰──────────────────' `case` clauses have incompatible types
+   │  
+   = expected type `String`
+        found type `Nat`
+
