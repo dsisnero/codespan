@@ -1,0 +1,3 @@
+[submodule "vendor/codespan"]
+	path = vendor/codespan
+	url = https://github.com/brendanzab/codespan.git
