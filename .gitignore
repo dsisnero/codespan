@@ -9,5 +9,6 @@
 .claude/
 .crystal-cache/
 .DS_Store
+._*
 *.log
 coverage/
