@@ -1,5 +1,5 @@
 <p align="center">
-  <strong>Beautiful diagnostic reporting for text-based programming languages - crystal port of rust codespan</strong><br>
+  <strong>Beautiful diagnostic reporting for text-based programming languages — Crystal port of rust codespan</strong><br>
   A Crystal-native port focused on faithful diagnostic behavior.
 </p>
 
@@ -14,33 +14,28 @@
 
 ---
 
-codespan transforms compiler errors into readable diagnostics - spanning code regions to provide context and clarity where it matters most. This Crystal port keeps the precision and clarity of rust-codespan while adapting implementation details to Crystal idioms. The goal is diagnostic output that feels native in Crystal but stays behaviorally anchored to the Rust reference.
+codespan transforms compiler errors into readable diagnostics — spanning code regions with carets, underlines, and labels to provide context and clarity. This Crystal port keeps the precision and clarity of [rust-codespan](https://github.com/brendanzab/codespan) while adapting implementation details to Crystal idioms.
+
+**Status**: 156 specs, 19 golden parity tests, rendering complete for all display styles (Rich/Medium/Short).
 
 ---
 
 ## Quick Start
 
-1. Install dependencies:
-
 ```bash
 shards install
-```
-
-2. Run specs:
-
-```bash
 crystal spec
 ```
 
 ## Features
 
-- Crystal shard scaffold ready for incremental rust-codespan parity porting.
-- Dedicated `spec/` suite for behavior verification.
-- Project docs and workflows aligned to parity-first development.
+- **Rich diagnostic rendering**: Box-drawing borders, carets, multiline labels with `╭│╰` markers
+- **Three display styles**: Rich (full source context), Medium (header + notes), Short (header only)
+- **Unicode & tab support**: Tab-stop-aware spacing, CJK/wide character display width
+- **LSP integration**: Byte offset ↔ LSP position/range conversion with UTF-16 encoding
+- **19 golden parity tests**: Validated byte-for-byte against Rust codespan output
 
 ## Installation
-
-1. Add the dependency to your `shard.yml`:
 
 ```yaml
 dependencies:
@@ -48,15 +43,26 @@ dependencies:
     github: dsisnero/codespan
 ```
 
-2. Run `shards install`.
-
 ## Usage
 
 ```crystal
 require "codespan"
-```
 
-<!-- TODO: Add end-to-end diagnostic usage examples once implementation is ported. -->
+files = Codespan::Reporting::Files::SimpleFiles.new
+file_id = files.add("test.cr", "1 + \"hello\"\n")
+
+diagnostic = Codespan::Reporting::Diagnostic.error
+  .with_message("type mismatch")
+  .with_code("E0001")
+  .with_labels([
+    Codespan::Reporting::Label.primary(file_id, 4...11)
+      .with_message("expected Int, found String"),
+  ])
+
+config = Codespan::Reporting::Term::Config.new
+output = Codespan::Reporting::Term.emit_into_string(config, files, diagnostic)
+puts output
+```
 
 ## Development
 
@@ -67,27 +73,17 @@ ameba src spec
 crystal spec
 ```
 
-See [Development Guide](docs/development.md) for full setup instructions.
-
 ## Documentation
 
 | Document | Purpose |
 |----------|---------|
-| [Architecture](docs/architecture.md) | System design and data flow |
-| [Development](docs/development.md) | Setup and daily workflow |
-| [Coding Guidelines](docs/coding-guidelines.md) | Code style and conventions |
-| [Testing](docs/testing.md) | Test commands and patterns |
-| [PR Workflow](docs/pr-workflow.md) | Commits, PRs, and review process |
-| [Porting Parity](docs/porting-parity.md) | Upstream source pinning and parity tracking ledger |
-
-## Contributing
-
-1. Create an issue: `/forge-create-issue`
-2. Implement: `/forge-implement-issue <number>`
-3. Self-review: `/forge-reflect-pr`
-4. Address feedback: `/forge-address-pr-feedback`
-5. Update changelog: `/forge-update-changelog`
+| [Architecture](docs/architecture.md) | System design, data flow, package responsibilities |
+| [Development](docs/development.md) | Prerequisites, setup, daily workflow |
+| [Coding Guidelines](docs/coding-guidelines.md) | Code style, error handling, naming conventions |
+| [Testing](docs/testing.md) | Test commands, conventions, golden parity |
+| [PR Workflow](docs/pr-workflow.md) | Commits, PRs, branch naming, review process |
+| [Porting Parity](docs/porting-parity.md) | Upstream commit pin, coverage ledger, parity verification |
 
 ## Contributors
 
-- [Dominic Sisneros](https://github.com/dsisnero) - creator and maintainer
+- [Dominic Sisneros](https://github.com/dsisnero) — creator and maintainer

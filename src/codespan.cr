@@ -3,6 +3,7 @@ require "./codespan/file"
 require "./codespan/location"
 require "./codespan/reporting"
 require "./codespan/span"
+require "./codespan/lsp"
 
 module Codespan
   VERSION = "0.1.0"

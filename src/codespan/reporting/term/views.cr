@@ -3,6 +3,10 @@ require "set"
 module Codespan
   module Reporting
     module Term
+      def self.byte_slice(source : String, range : Range(Int32, Int32)) : String
+        String.new(source.to_slice[range.begin, range.end - range.begin])
+      end
+
       def self.count_digits(n : Int32) : Int32
         return 1 if n == 0
         Math.log10(n).to_i + 1
@@ -156,7 +160,7 @@ module Codespan
               renderer.render_snippet_source(
                 outer_padding,
                 line.number,
-                source[line.range],
+                Term.byte_slice(source, line.range),
                 @diagnostic.severity,
                 line.single_labels,
                 labeled_file.num_multi_labels,
@@ -172,17 +176,16 @@ module Codespan
                 when 2
                   # One line gap - render it
                   mid_index = line_index + 1
-                  if mid_line = labeled_file.lines[mid_index]?
-                    renderer.render_snippet_source(
-                      outer_padding,
-                      mid_index + 1,
-                      source[files.line_range(labeled_file.file_id, mid_index)],
-                      @diagnostic.severity,
-                      [] of Tuple(LabelStyle, Range(Int32, Int32), String),
-                      labeled_file.num_multi_labels,
-                      mid_line.multi_labels
-                    )
-                  end
+                  mid_multi_labels = labeled_file.lines[mid_index]?.try(&.multi_labels) || [] of Tuple(Int32, LabelStyle, MultiLabel)
+                  renderer.render_snippet_source(
+                    outer_padding,
+                    mid_index + 1,
+                    Term.byte_slice(source, files.line_range(labeled_file.file_id, mid_index)),
+                    @diagnostic.severity,
+                    [] of Tuple(LabelStyle, Range(Int32, Int32), String),
+                    labeled_file.num_multi_labels,
+                    mid_multi_labels
+                  )
                 else
                   # Break
                   renderer.render_snippet_break(

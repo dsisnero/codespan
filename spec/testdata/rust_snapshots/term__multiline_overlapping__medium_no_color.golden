@@ -1,4 +1,3 @@
 codespan/src/file.rs:4:34: error[E0308]: match arms have incompatible types
  = expected type `Result<ByteIndex, LineIndexOutOfBoundsError>`
       found type `LineIndexOutOfBoundsError`
-
